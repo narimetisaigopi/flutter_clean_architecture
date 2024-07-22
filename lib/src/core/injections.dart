@@ -3,7 +3,7 @@ import 'package:flutter_clean_architecture/src/features/auth/auth_exports.dart';
 import 'package:flutter_clean_architecture/src/features/home/home_exports.dart';
 import 'package:flutter_clean_architecture/src/shared/shared_exports.dart';
 import 'package:get_it/get_it.dart';
-import 'package:secure_shared_preferences/secure_shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -17,10 +17,10 @@ Future<void> initInjections() async {
 }
 
 Future<void> initSharedPrefsInjections() async {
-  getIt.registerSingletonAsync<SecureSharedPref>(() async {
-    return await SecureSharedPref.getInstance();
+  getIt.registerSingletonAsync<SharedPreferences>(() async {
+    return await SharedPreferences.getInstance();
   });
-  await getIt.isReady<SecureSharedPref>();
+  await getIt.isReady<SharedPreferences>();
 }
 
 Future<void> initDioInjections() async {

@@ -1,4 +1,5 @@
 import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,12 +19,11 @@ void main() async {
   await initInjections();
 
   // created the storage variable instance to store the data in local storage
-  HydratedStorage storage = await HydratedStorage.build(
-    storageDirectory: await getApplicationDocumentsDirectory(),
+  HydratedBloc.storage = await HydratedStorage.build(
+    storageDirectory: kIsWeb
+        ? HydratedStorage.webStorageDirectory
+        : await getApplicationDocumentsDirectory(),
   );
-
-  // using the HydratedBloc to implement the Hydrated bloc storage
-  HydratedBloc.storage = storage;
 
   runApp(DevicePreview(
     builder: (BuildContext context) {
@@ -35,6 +35,21 @@ void main() async {
   SystemChrome.setPreferredOrientations(
       <DeviceOrientation>[DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+}
+
+class DemoPage extends StatelessWidget {
+  const DemoPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text('Demo'),
+        ),
+      ),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -53,9 +68,10 @@ class MyApp extends StatelessWidget {
         BlocProvider<SignupCubit>(
           create: (_) => getIt<SignupCubit>(),
         ),
-        BlocProvider<NetworkCubit>(
-          create: (_) => getIt<NetworkCubit>(),
-        ),
+        if (!kIsWeb) // Only add NetworkCubit if not running on the web
+          BlocProvider<NetworkCubit>(
+            create: (_) => getIt<NetworkCubit>(),
+          ),
       ],
       child: const HomeScreen(),
     );
@@ -76,15 +92,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    networkCubit = context.read<NetworkCubit>();
-    networkCubit.checkConnectivity();
-    networkCubit.trackConnectivityChange();
+    if (!kIsWeb) {
+      networkCubit = context.read<NetworkCubit>();
+      networkCubit.checkConnectivity();
+      networkCubit.trackConnectivityChange();
+    }
     super.initState();
   }
 
   @override
   void dispose() {
-    networkCubit.dispose();
+    if (!kIsWeb) networkCubit.dispose();
     super.dispose();
   }
 
