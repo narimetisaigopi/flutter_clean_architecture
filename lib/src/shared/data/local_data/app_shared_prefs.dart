@@ -1,11 +1,10 @@
+import 'dart:convert';
 import 'package:flutter_clean_architecture/src/core/routing/route_constants.dart';
 import 'package:flutter_clean_architecture/src/core/utils/constants/localdata_constants.dart';
-import 'package:secure_shared_preferences/secure_shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSharedPrefs {
-  final SecureSharedPref _preferences;
-  // based on need on/off encryption
-  bool enableEncryption = true;
+  final SharedPreferences _preferences;
 
   AppSharedPrefs(this._preferences);
 
@@ -13,10 +12,7 @@ class AppSharedPrefs {
   // get theme
   Future<bool> getIsDarkTheme() async {
     try {
-      bool? response = await _preferences.getBool(
-        LocalDataConstants.theme,
-        isEncrypted: enableEncryption,
-      );
+      bool? response = _preferences.getBool(LocalDataConstants.theme);
       return response ?? false;
     } catch (e) {
       return false;
@@ -25,19 +21,15 @@ class AppSharedPrefs {
 
   // set theme mode
   void setDarkTheme(bool isDark) {
-    _preferences.putBool(LocalDataConstants.theme, isDark,
-        isEncrypted: enableEncryption);
+    _preferences.setBool(LocalDataConstants.theme, isDark);
   }
 
   /// __________ Route __________ ///
   // get current route
   Future<String> getCurrentRoute() async {
     try {
-      String? response = await _preferences.getString(
-        LocalDataConstants.currentRoute,
-        isEncrypted: enableEncryption,
-      );
-
+      String? response =
+          _preferences.getString(LocalDataConstants.currentRoute);
       return response ?? RouteConstants.kHomeScreen.path;
     } catch (e) {
       return RouteConstants.kHomeScreen.path;
@@ -46,56 +38,47 @@ class AppSharedPrefs {
 
   // set current route
   void setCurrentRoute(String currentRoute) {
-    _preferences.putString(
-      LocalDataConstants.currentRoute,
-      currentRoute,
-      isEncrypted: enableEncryption,
-    );
+    _preferences.setString(LocalDataConstants.currentRoute, currentRoute);
   }
 
+  /// __________ Token Handling __________ ///
   // set access token
   void setAccessToken(Map<String, dynamic> data) {
-    _preferences.putMap(
-      LocalDataConstants.accessToken,
-      data,
-      isEncrypted: enableEncryption,
-    );
+    String jsonData = jsonEncode(data);
+    _preferences.setString(LocalDataConstants.accessToken, jsonData);
   }
 
   // set refresh token
   void setRefreshToken(Map<String, dynamic> data) {
-    _preferences.putMap(
-      LocalDataConstants.refreshToken,
-      data,
-      isEncrypted: enableEncryption,
-    );
+    String jsonData = jsonEncode(data);
+    _preferences.setString(LocalDataConstants.refreshToken, jsonData);
   }
 
   // get access token
   Future<Map<String, dynamic>> getAccessToken() async {
     try {
-      Map<dynamic, dynamic>? response = await _preferences.getMap(
-        LocalDataConstants.accessToken,
-        isEncrypted: enableEncryption,
-      );
-
-      return response as Map<String, dynamic>;
+      String? jsonString =
+          _preferences.getString(LocalDataConstants.accessToken);
+      if (jsonString != null) {
+        return Map<String, dynamic>.from(jsonDecode(jsonString));
+      }
+      return <String, dynamic>{};
     } catch (e) {
-      return {};
+      return <String, dynamic>{};
     }
   }
 
-// get refresh token
+  // get refresh token
   Future<Map<String, dynamic>> getRefreshToken() async {
     try {
-      Map<dynamic, dynamic>? response = await _preferences.getMap(
-        LocalDataConstants.refreshToken,
-        isEncrypted: enableEncryption,
-      );
-
-      return response as Map<String, dynamic>;
+      String? jsonString =
+          _preferences.getString(LocalDataConstants.refreshToken);
+      if (jsonString != null) {
+        return Map<String, dynamic>.from(jsonDecode(jsonString));
+      }
+      return <String, dynamic>{};
     } catch (e) {
-      return {};
+      return <String, dynamic>{};
     }
   }
 }

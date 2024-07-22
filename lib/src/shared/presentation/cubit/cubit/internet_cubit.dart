@@ -8,9 +8,7 @@ import 'package:flutter_clean_architecture/src/core/enums/enums.dart';
 part 'internet_state.dart';
 
 class NetworkCubit extends Cubit<InternetStatus> {
-  NetworkCubit() : super(const InternetStatus(ConnectivityStatus.connected)) {
-    checkConnectivity();
-  }
+  NetworkCubit() : super(const InternetStatus(ConnectivityStatus.connected));
 
   final ValueNotifier<InternetStatus> _connectivityStatusNotifier =
       ValueNotifier<InternetStatus>(

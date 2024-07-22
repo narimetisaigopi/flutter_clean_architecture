@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_clean_architecture/src/core/core_exports.dart';
 import 'package:flutter_clean_architecture/src/shared/shared_exports.dart';
 
@@ -9,5 +10,5 @@ void initAppInjections() {
   getIt.registerFactory<ThemeSwitchBloc>(() => ThemeSwitchBloc());
 
   // Register NetworkCubit as a singleton
-  getIt.registerLazySingleton<NetworkCubit>(() => NetworkCubit());
+  if (!kIsWeb) getIt.registerLazySingleton<NetworkCubit>(() => NetworkCubit());
 }

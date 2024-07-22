@@ -64,7 +64,7 @@ dependencies:
   # Handle Success/Error State From Data Source
   dartz: ^0.10.1
   # To Store Data In Local Storage
-  secure_shared_preferences: ^0.0.4
+  shared_preferences: ^2.2.3
   # provider state management
   provider: ^6.1.1
   shimmer: ^3.0.0
